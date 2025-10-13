@@ -3,7 +3,7 @@ import type { Express } from "express";
 import morgan from "morgan";
 import router from "./src/index.js";
 import dotenv from "dotenv";
-import { AppDataSource } from "./src/data-source.js";
+import { AppDataSource } from "./src/database/data-source.js";
 
 dotenv.config();
 

@@ -7,7 +7,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc-watch --onSuccess \"nodemon dist/server.js\"",
-    "typeorm": "typeorm-ts-node-esm"
+    "typeorm": "typeorm-ts-node-esm",
+    "migration:generate": "typeorm migration:generate",
+    "migration:run": "typeorm-ts-node-esm migration:run -d ./src/database/data-source.ts",
+    "migration:revert": "typeorm migration:revert -d ./src/database/data-source.ts"
   },
   "author": "",
   "license": "ISC",
