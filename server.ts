@@ -1,9 +1,10 @@
 import express from "express";
 import type { Express } from "express";
 import morgan from "morgan";
-import router from "./src/index.js";
+import router from "./src/routes/index.js";
 import dotenv from "dotenv";
 import { AppDataSource } from "./src/database/data-source.js";
+import rootRouter from "./src/routes/index.js";
 
 dotenv.config();
 
@@ -22,7 +23,7 @@ app.use(express.json());
 // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan("dev"));
-app.use("/", router);
+app.use("/api", rootRouter);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
