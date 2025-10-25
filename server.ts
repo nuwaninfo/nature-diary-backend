@@ -9,7 +9,7 @@ import rootRouter from "./src/routes/index.js";
 dotenv.config();
 
 const app: Express = express();
-const port: number = parseInt(process.env.PORT as string) || 8001;
+const port: number = parseInt(process.env.PORT as string) || 8002;
 
 AppDataSource.initialize()
   .then(async () => {
