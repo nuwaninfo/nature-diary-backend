@@ -5,6 +5,7 @@ import router from "./src/routes/index.js";
 import dotenv from "dotenv";
 import { AppDataSource } from "./src/database/data-source.js";
 import rootRouter from "./src/routes/index.js";
+import cors from "cors";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ AppDataSource.initialize()
 
 // Middleware in Express that allows your server to parse incoming requests with JSON payloads.
 app.use(express.json());
+app.use(cors());
 
 // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: false }));

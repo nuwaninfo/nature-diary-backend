@@ -8,6 +8,14 @@ import { User } from "../entities/User.js";
 import { UserService } from "./userService.js";
 import bcrypt from "bcrypt";
 
+interface ILoginReturn {
+  accessToken: string;
+  email: string;
+  firstName: string;
+  status: number;
+  msg: string;
+}
+
 export class AuthService {
   private userRepository = AppDataSource.getRepository(User);
 
@@ -36,7 +44,7 @@ export class AuthService {
     }
   }
 
-  async logIn(loginDto: LoginDTO): Promise<{ accessToken: string }> {
+  async logIn(loginDto: LoginDTO): Promise<ILoginReturn> {
     const { email, password } = loginDto;
 
     const user: User | null = await this.userRepository.findOne({
@@ -58,8 +66,6 @@ export class AuthService {
 
     const secret: string | undefined = process.env.SECRET;
 
-    console.log(process.env.PORT);
-
     if (!secret) {
       throw new Error("JWT SECRET is not defined in environment variables");
     }
@@ -68,6 +74,12 @@ export class AuthService {
 
     const token: string = jwt.sign(JwtPayload, secret, { expiresIn });
 
-    return { accessToken: token };
+    return {
+      accessToken: token,
+      email: user.email,
+      firstName: user.firstName,
+      status: 200,
+      msg: "Login success",
+    };
   }
 }
