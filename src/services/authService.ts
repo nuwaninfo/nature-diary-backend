@@ -51,12 +51,24 @@ export class AuthService {
       where: { email },
     });
     if (!user) {
-      throw new Error("Invalid credentials");
+      return {
+        accessToken: "",
+        email: "",
+        firstName: "",
+        status: 401,
+        msg: "User does not exists. Please sign up",
+      };
     }
 
     const isMatch: boolean = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      throw new Error("Invalid credentials");
+      return {
+        accessToken: "",
+        email: "",
+        firstName: "",
+        status: 401,
+        msg: "Invalid credentials",
+      };
     }
 
     const JwtPayload: JwtPayload = {

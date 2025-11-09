@@ -3,10 +3,15 @@ import type { UserDTO } from "../dto/userDto.js";
 import { User } from "../entities/User.js";
 import bcrypt from "bcrypt";
 
+interface IUserResponse {
+  success: boolean;
+  message: string;
+}
+
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
 
-  async create(userDto: UserDTO): Promise<User> {
+  async create(userDto: UserDTO): Promise<IUserResponse> {
     //console.log(userDto);
     try {
       const exists: boolean = await this.isUserExists(userDto.email);
@@ -25,7 +30,14 @@ export class UserService {
       user.role = "observer";
       user.password = hash;
 
-      return await this.userRepository.save(user);
+      const savedUser = await this.userRepository.save(user);
+      if (!savedUser.id) {
+        return { success: false, message: "Failed to save user" };
+      }
+      return {
+        success: true,
+        message: "User created successfully",
+      };
     } catch (error: any) {
       throw error;
     }
