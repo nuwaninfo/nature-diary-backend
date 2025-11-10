@@ -32,7 +32,7 @@ export class Observation {
   category: CategoryType;
 
   @Column({ type: "date" })
-  dateOfObservation: string;
+  dateOfObservation: Date;
 
   @Column({ type: "text", nullable: true })
   description: string;
@@ -42,8 +42,6 @@ export class Observation {
 
   @UpdateDateColumn()
   updatedDate: Date;
-
-  // Relationships
 
   @ManyToOne(() => User, (user) => user.observations, { onDelete: "CASCADE" })
   user: User;

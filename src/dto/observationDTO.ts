@@ -9,6 +9,8 @@ import { Type } from "class-transformer";
 import { LocationDTO } from "../dto/locationDTO.js";
 import { ImageDTO } from "../dto/imageDTO.js";
 
+export type CategoryType = "fauna" | "flora" | "funga";
+
 export class ObservationDTO {
   @IsBoolean()
   isDomestic!: boolean;
@@ -27,7 +29,7 @@ export class ObservationDTO {
   dateOfObservation!: string;
 
   @IsString()
-  category!: string;
+  category!: CategoryType;
 
   @IsOptional()
   @Type(() => LocationDTO)
