@@ -7,7 +7,7 @@ import {
   OneToOne,
   JoinColumn,
 } from "typeorm";
-import { Observation } from "../entities/Observation.js";
+import type { ILocation, IObservation } from "../types/types.js";
 
 @Entity()
 export class Location {
@@ -26,10 +26,13 @@ export class Location {
   @UpdateDateColumn()
   updatedDate: Date;
 
-  // Relationship: one location belongs to one observation
-  @OneToOne(() => Observation, (observation) => observation.location, {
-    onDelete: "CASCADE",
-  })
+  @OneToOne(
+    "Observation",
+    (observation: IObservation) => observation.location,
+    {
+      onDelete: "CASCADE",
+    }
+  )
   @JoinColumn()
-  observation: Observation;
+  observation: IObservation;
 }

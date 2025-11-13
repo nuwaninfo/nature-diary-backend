@@ -6,7 +6,8 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from "typeorm";
-import { Observation } from "../entities/Observation.js";
+
+import type { IUser, IObservation } from "../types/types.js";
 
 @Entity()
 export class User {
@@ -34,6 +35,6 @@ export class User {
   @UpdateDateColumn()
   updatedDate: Date;
 
-  @OneToMany(() => Observation, (observation) => observation.user)
-  observations: Observation[];
+  @OneToMany("Observation", (observation: IObservation) => observation.user)
+  observations: IObservation[];
 }

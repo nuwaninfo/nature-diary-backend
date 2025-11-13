@@ -5,7 +5,7 @@ import {
   ManyToOne,
   CreateDateColumn,
 } from "typeorm";
-import { Observation } from "../entities/Observation.js";
+import type { IImage, IObservation } from "../types/types.js";
 
 @Entity()
 export class Image {
@@ -18,8 +18,8 @@ export class Image {
   @CreateDateColumn()
   addedDate: Date;
 
-  @ManyToOne(() => Observation, (observation) => observation.images, {
+  @ManyToOne("Observation", (observation: IObservation) => observation.images, {
     onDelete: "CASCADE",
   })
-  observation: Observation;
+  observation: IObservation;
 }

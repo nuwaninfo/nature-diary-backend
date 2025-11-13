@@ -8,9 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { User } from "./User.js";
-import { Image } from "../entities/Image.js";
-import { Location } from "../entities/Location.js";
+import type { IObservation, IUser, IImage, ILocation } from "../types/types.js";
 
 export type CategoryType = "fauna" | "flora" | "funga";
 
@@ -43,15 +41,17 @@ export class Observation {
   @UpdateDateColumn()
   updatedDate: Date;
 
-  @ManyToOne(() => User, (user) => user.observations, { onDelete: "CASCADE" })
-  user: User;
+  @ManyToOne("User", (user: IUser) => user.observations, {
+    onDelete: "CASCADE",
+  })
+  user: IUser;
 
-  @OneToMany(() => Image, (image) => image.observation, { cascade: true })
-  images: Image[];
+  @OneToMany("Image", (image: IImage) => image.observation, { cascade: true })
+  images: IImage[];
 
-  @OneToOne(() => Location, (location) => location.observation, {
+  @OneToOne("Location", (location: ILocation) => location.observation, {
     cascade: true,
     nullable: true,
   })
-  location?: Location;
+  location?: ILocation;
 }
