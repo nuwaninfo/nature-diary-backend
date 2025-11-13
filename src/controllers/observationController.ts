@@ -22,7 +22,34 @@ export const createObservation = async (req: CustomRequest, res: Response) => {
       userId,
       observationDto
     );
-    res.status(201).json(observation);
+    res.status(201).json({
+      success: true,
+      message: "Observation created successfully",
+      observationId: observation.id,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(400).json({ message: String(error) });
+    }
+  }
+};
+
+export const getObservation = async (req: CustomRequest, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id))
+      return res.status(400).json({ message: "Invalid observation ID" });
+
+    const observation = await observationService.getObservationById(id);
+    if (!observation)
+      return res.status(404).json({ message: "Observation not found" });
+
+    res.status(200).json({
+      success: true,
+      observation,
+    });
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).json({ message: error.message });

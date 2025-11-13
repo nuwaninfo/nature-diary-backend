@@ -13,6 +13,7 @@ export class ObservationService {
   private locationRepository = AppDataSource.getRepository(Location);
   private userRepository = AppDataSource.getRepository(User);
 
+  // Create a new observation
   async createObservation(
     userId: number,
     dto: ObservationDTO
@@ -55,5 +56,13 @@ export class ObservationService {
     }
 
     return await this.observationRepository.save(observation);
+  }
+
+  // Retrieve an observation by ID
+  async getObservationById(id: number): Promise<Observation | null> {
+    return await this.observationRepository.findOne({
+      where: { id },
+      relations: ["user", "images", "location"],
+    });
   }
 }
