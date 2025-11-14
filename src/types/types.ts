@@ -47,3 +47,5 @@ export interface IUser {
   updatedDate: Date;
   observations: IObservation[];
 }
+
+export type CategoryType = "fauna" | "flora" | "funga";

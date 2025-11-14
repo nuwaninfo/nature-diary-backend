@@ -58,3 +58,52 @@ export const getObservation = async (req: CustomRequest, res: Response) => {
     }
   }
 };
+
+export const getAllObservations = async (req: CustomRequest, res: Response) => {
+  try {
+    const { category, needIdentification, needToShare, userId, page, limit } =
+      req.query;
+
+    const filters = {
+      ...(category && {
+        category: category as "fauna" | "flora" | "funga",
+      }),
+      ...(needIdentification !== undefined && {
+        needIdentification: needIdentification === "true",
+      }),
+      ...(needToShare !== undefined && {
+        needToShare: needToShare === "true",
+      }),
+      ...(userId && { userId: Number(userId) }),
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 10,
+    };
+
+    const result = await observationService.getAllObservations(filters);
+
+    const currentLimit = filters.limit || 10;
+
+    res.status(200).json({
+      success: true,
+      data: result.observations,
+      pagination: {
+        page: result.page,
+        limit: currentLimit,
+        total: result.total,
+        totalPages: result.totalPages,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: String(error),
+      });
+    }
+  }
+};

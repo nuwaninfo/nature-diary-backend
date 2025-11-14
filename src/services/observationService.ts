@@ -6,6 +6,7 @@ import { User } from "../entities/User.js";
 import { ObservationDTO } from "../dto/observationDTO.js";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
+import type { CategoryType } from "../types/types.js";
 
 export class ObservationService {
   private observationRepository = AppDataSource.getRepository(Observation);
@@ -64,5 +65,70 @@ export class ObservationService {
       where: { id },
       relations: ["user", "images", "location"],
     });
+  }
+
+  // Retrieve all observations with optional filters and pagination
+  async getAllObservations(filters?: {
+    category?: CategoryType;
+    needIdentification?: boolean;
+    needToShare?: boolean;
+    userId?: number;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    observations: Observation[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.observationRepository
+      .createQueryBuilder("observation")
+      .leftJoinAndSelect("observation.user", "user")
+      .leftJoinAndSelect("observation.images", "images")
+      .leftJoinAndSelect("observation.location", "location");
+
+    if (filters?.category) {
+      queryBuilder.andWhere("observation.category = :category", {
+        category: filters.category,
+      });
+    }
+
+    if (filters?.needIdentification !== undefined) {
+      queryBuilder.andWhere(
+        "observation.needIdentification = :needIdentification",
+        {
+          needIdentification: filters.needIdentification,
+        }
+      );
+    }
+
+    if (filters?.needToShare !== undefined) {
+      queryBuilder.andWhere("observation.needToShare = :needToShare", {
+        needToShare: filters.needToShare,
+      });
+    }
+
+    if (filters?.userId) {
+      queryBuilder.andWhere("observation.user.id = :userId", {
+        userId: filters.userId,
+      });
+    }
+
+    const [observations, total] = await queryBuilder
+      .orderBy("observation.dateOfObservation", "DESC")
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      observations,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }
