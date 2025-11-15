@@ -82,7 +82,7 @@ export class AuthService {
       throw new Error("JWT SECRET is not defined in environment variables");
     }
 
-    const expiresIn = "2m";
+    const expiresIn = "10m";
 
     const token: string = jwt.sign(JwtPayload, secret, { expiresIn });
 
