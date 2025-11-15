@@ -5,6 +5,7 @@ import {
   getAllObservations,
   getUserObservations,
   updateObservation,
+  deleteObservation,
 } from "../controllers/observationController.js";
 import { validateToken } from "../middleware/validateToken.js";
 
@@ -17,6 +18,8 @@ router.post("/observations", validateToken, createObservation);
 router.get("/observations", validateToken, getUserObservations);
 // update observation
 router.put("/observations/:id", validateToken, updateObservation);
+// delete observation
+router.delete("/observations/:id", validateToken, deleteObservation);
 
 // Public routes
 router.get("/public/observations/:id", getObservation);

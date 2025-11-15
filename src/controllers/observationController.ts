@@ -137,7 +137,7 @@ export const getUserObservations = async (
       ...(needToShare !== undefined && {
         needToShare: needToShare === "true",
       }),
-      userId: userId, // Always filter by the authenticated user
+      userId: userId,
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 10,
     };
@@ -190,7 +190,6 @@ export const updateObservation = async (req: CustomRequest, res: Response) => {
 
     const updateData: Partial<ObservationDTO> = req.body;
 
-    // Check if update data is provided
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({
         success: false,
@@ -208,6 +207,46 @@ export const updateObservation = async (req: CustomRequest, res: Response) => {
       success: true,
       message: "Observation updated successfully",
       data: updatedObservation,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: String(error),
+      });
+    }
+  }
+};
+
+// Delete an observation for the authenticated user
+export const deleteObservation = async (req: CustomRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid observation ID",
+      });
+    }
+
+    await observationService.deleteObservation(id, userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Observation deleted successfully",
     });
   } catch (error) {
     if (error instanceof Error) {

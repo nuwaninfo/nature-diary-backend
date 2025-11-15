@@ -207,4 +207,19 @@ export class ObservationService {
 
     return await this.observationRepository.save(observation);
   }
+
+  // Delete an observation
+  async deleteObservation(id: number, userId: number): Promise<boolean> {
+    const observation = await this.observationRepository.findOne({
+      where: { id, user: { id: userId } },
+    });
+
+    if (!observation) {
+      throw new Error(`Observation with id ${id} not found or access denied`);
+    }
+
+    await this.observationRepository.remove(observation);
+
+    return true;
+  }
 }
