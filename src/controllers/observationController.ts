@@ -5,6 +5,7 @@ import type { CustomRequest } from "../types/types.js";
 
 const observationService = new ObservationService();
 
+// Create a new observation for the authenticated user
 export const createObservation = async (req: CustomRequest, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -36,7 +37,8 @@ export const createObservation = async (req: CustomRequest, res: Response) => {
   }
 };
 
-export const getObservation = async (req: CustomRequest, res: Response) => {
+// Get a single observation by ID for public access
+export const getObservation = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     if (isNaN(id))
@@ -59,7 +61,8 @@ export const getObservation = async (req: CustomRequest, res: Response) => {
   }
 };
 
-export const getAllObservations = async (req: CustomRequest, res: Response) => {
+// Get all observations with optional filters and pagination for public access
+export const getAllObservations = async (req: Request, res: Response) => {
   try {
     const { category, needIdentification, needToShare, userId, page, limit } =
       req.query;
@@ -74,7 +77,6 @@ export const getAllObservations = async (req: CustomRequest, res: Response) => {
       ...(needToShare !== undefined && {
         needToShare: needToShare === "true",
       }),
-      ...(userId && { userId: Number(userId) }),
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 10,
     };
@@ -92,6 +94,120 @@ export const getAllObservations = async (req: CustomRequest, res: Response) => {
         total: result.total,
         totalPages: result.totalPages,
       },
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: String(error),
+      });
+    }
+  }
+};
+
+// Get observations for the authenticated user with optional filters and pagination
+export const getUserObservations = async (
+  req: CustomRequest,
+  res: Response
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    // Extract optional query parameters for filtering/pagination
+    const { category, needIdentification, needToShare, page, limit } =
+      req.query;
+
+    const filters = {
+      ...(category && { category: category as "fauna" | "flora" | "funga" }),
+      ...(needIdentification !== undefined && {
+        needIdentification: needIdentification === "true",
+      }),
+      ...(needToShare !== undefined && {
+        needToShare: needToShare === "true",
+      }),
+      userId: userId, // Always filter by the authenticated user
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 10,
+    };
+
+    const result = await observationService.getAllObservations(filters);
+
+    res.status(200).json({
+      success: true,
+      data: result.observations,
+      pagination: {
+        page: result.page,
+        limit: filters.limit,
+        total: result.total,
+        totalPages: result.totalPages,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: String(error),
+      });
+    }
+  }
+};
+
+// Update an existing observation for the authenticated user
+export const updateObservation = async (req: CustomRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid observation ID",
+      });
+    }
+
+    const updateData: Partial<ObservationDTO> = req.body;
+
+    // Check if update data is provided
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No update data provided",
+      });
+    }
+
+    const updatedObservation = await observationService.updateObservation(
+      id,
+      userId,
+      updateData
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Observation updated successfully",
+      data: updatedObservation,
     });
   } catch (error) {
     if (error instanceof Error) {

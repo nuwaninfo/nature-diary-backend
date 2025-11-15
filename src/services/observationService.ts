@@ -131,4 +131,80 @@ export class ObservationService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  // Update an existing observation
+  async updateObservation(
+    id: number,
+    userId: number,
+    updateData: Partial<ObservationDTO>
+  ): Promise<Observation> {
+    const observation = await this.observationRepository.findOne({
+      where: { id, user: { id: userId } },
+      relations: ["images", "location"],
+    });
+
+    if (!observation) {
+      throw new Error(`Observation with id ${id} not found or access denied`);
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      const instance = plainToInstance(ObservationDTO, updateData);
+      const errors = await validate(instance, { skipMissingProperties: true });
+
+      if (errors.length > 0) {
+        throw new Error(`Validation failed: ${JSON.stringify(errors)}`);
+      }
+    }
+
+    if (updateData.isDomestic !== undefined) {
+      observation.isDomestic = updateData.isDomestic;
+    }
+    if (updateData.needToShare !== undefined) {
+      observation.needToShare = updateData.needToShare;
+    }
+    if (updateData.needIdentification !== undefined) {
+      observation.needIdentification = updateData.needIdentification;
+    }
+    if (updateData.description) {
+      observation.description = updateData.description;
+    }
+    if (updateData.dateOfObservation) {
+      observation.dateOfObservation = new Date(updateData.dateOfObservation);
+    }
+    if (updateData.category) {
+      observation.category = updateData.category;
+    }
+
+    if (updateData.location) {
+      if (observation.location) {
+        observation.location.latitude = updateData.location.latitude;
+        observation.location.longitude = updateData.location.longitude;
+      } else {
+        const newLocation = new Location();
+        newLocation.latitude = updateData.location.latitude;
+        newLocation.longitude = updateData.location.longitude;
+        observation.location = newLocation;
+      }
+    }
+
+    if (updateData.images !== undefined) {
+      if (observation.images && observation.images.length > 0) {
+        await this.imageRepository.remove(observation.images);
+      }
+
+      if (updateData.images.length > 0) {
+        const newImages = updateData.images.map((imgDTO) => {
+          const image = new Image();
+          image.imageName = imgDTO.imageName;
+          image.observation = observation;
+          return image;
+        });
+        observation.images = newImages;
+      } else {
+        observation.images = [];
+      }
+    }
+
+    return await this.observationRepository.save(observation);
+  }
 }
