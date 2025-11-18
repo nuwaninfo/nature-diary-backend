@@ -35,8 +35,4 @@ export class ObservationDTO {
   @IsOptional()
   @Type(() => LocationDTO)
   location?: LocationDTO;
-
-  @IsOptional()
-  @Type(() => ImageDTO)
-  images?: ImageDTO[];
 }

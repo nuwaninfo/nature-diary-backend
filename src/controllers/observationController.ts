@@ -9,12 +9,12 @@ const observationService = new ObservationService();
 export const createObservation = async (req: CustomRequest, res: Response) => {
   try {
     const userId = req.user?.id;
-    console.log("Authenticated user ID:", req.body);
+    const files = req.files as Express.Multer.File[];
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
-    const observationDto: ObservationDTO = req.body;
+    const observationDto: ObservationDTO = JSON.parse(req.body.data);
 
     if (isNaN(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
@@ -22,7 +22,8 @@ export const createObservation = async (req: CustomRequest, res: Response) => {
 
     const observation = await observationService.createObservation(
       userId,
-      observationDto
+      observationDto,
+      files
     );
     res.status(201).json({
       success: true,
@@ -174,6 +175,8 @@ export const getUserObservations = async (
 export const updateObservation = async (req: CustomRequest, res: Response) => {
   try {
     const userId = req.user?.id;
+    const files = req.files as Express.Multer.File[];
+
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -201,7 +204,8 @@ export const updateObservation = async (req: CustomRequest, res: Response) => {
     const updatedObservation = await observationService.updateObservation(
       id,
       userId,
-      updateData
+      updateData,
+      files
     );
 
     res.status(200).json({

@@ -8,12 +8,18 @@ import {
   deleteObservation,
 } from "../controllers/observationController.js";
 import { validateToken } from "../middleware/validateToken.js";
+import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
 // Protected routes
 // create observation
-router.post("/observations", validateToken, createObservation);
+router.post(
+  "/observations",
+  validateToken,
+  upload.array("images", 10),
+  createObservation
+);
 // get user observations
 router.get("/observations", validateToken, getUserObservations);
 // update observation

@@ -7,6 +7,8 @@ import { ObservationDTO } from "../dto/observationDTO.js";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import type { CategoryType } from "../types/types.js";
+import fs from "fs";
+import path from "path";
 
 export class ObservationService {
   private observationRepository = AppDataSource.getRepository(Observation);
@@ -14,10 +16,44 @@ export class ObservationService {
   private locationRepository = AppDataSource.getRepository(Location);
   private userRepository = AppDataSource.getRepository(User);
 
+  // Utility: rename file and move to upload folder
+  private saveUploadedImages(
+    files: Express.Multer.File[],
+    userId: number
+  ): string[] {
+    if (!files || files.length === 0) return [];
+
+    return files.map((file) => {
+      const ext = path.extname(file.originalname);
+      const newName = `obs-${userId}-${Date.now()}-${Math.round(
+        Math.random() * 9999
+      )}${ext}`;
+
+      const uploadDir = path.join(process.cwd(), "images");
+
+      const destination = path.join(uploadDir, newName);
+
+      fs.renameSync(file.path, destination);
+
+      return newName;
+    });
+  }
+
+  private deleteImageFiles(images: Image[]) {
+    for (const img of images) {
+      const filePath = path.join("/images/", img.imageName);
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+  }
+
   // Create a new observation
   async createObservation(
     userId: number,
-    dto: ObservationDTO
+    dto: ObservationDTO,
+    files: Express.Multer.File[]
   ): Promise<Observation> {
     const instance = plainToInstance(ObservationDTO, dto);
     const errors = await validate(instance);
@@ -47,15 +83,14 @@ export class ObservationService {
       observation.location = location;
     }
 
-    if (dto.images && dto.images.length > 0) {
-      const images = dto.images.map((imgDTO) => {
-        const image = new Image();
-        image.imageName = imgDTO.imageName;
-        image.observation = observation;
-        return image;
-      });
-      observation.images = images;
-    }
+    const savedNames = this.saveUploadedImages(files, userId);
+
+    observation.images = savedNames.map((name) => {
+      const img = new Image();
+      img.imageName = name;
+      img.observation = observation;
+      return img;
+    });
 
     return await this.observationRepository.save(observation);
   }
@@ -137,7 +172,8 @@ export class ObservationService {
   async updateObservation(
     id: number,
     userId: number,
-    updateData: Partial<ObservationDTO>
+    updateData: Partial<ObservationDTO>,
+    files: Express.Multer.File[]
   ): Promise<Observation> {
     const observation = await this.observationRepository.findOne({
       where: { id, user: { id: userId } },
@@ -188,22 +224,20 @@ export class ObservationService {
       }
     }
 
-    if (updateData.images !== undefined) {
-      if (observation.images && observation.images.length > 0) {
+    if (files && files.length > 0) {
+      if (observation.images.length > 0) {
+        this.deleteImageFiles(observation.images);
         await this.imageRepository.remove(observation.images);
       }
 
-      if (updateData.images.length > 0) {
-        const newImages = updateData.images.map((imgDTO) => {
-          const image = new Image();
-          image.imageName = imgDTO.imageName;
-          image.observation = observation;
-          return image;
-        });
-        observation.images = newImages;
-      } else {
-        observation.images = [];
-      }
+      const savedNames = this.saveUploadedImages(files, userId);
+
+      observation.images = savedNames.map((name) => {
+        const img = new Image();
+        img.imageName = name;
+        img.observation = observation;
+        return img;
+      });
     }
 
     return await this.observationRepository.save(observation);
@@ -218,6 +252,8 @@ export class ObservationService {
     if (!observation) {
       throw new Error(`Observation with id ${id} not found or access denied`);
     }
+
+    this.deleteImageFiles(observation.images);
 
     await this.observationRepository.remove(observation);
 
