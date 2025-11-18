@@ -17,20 +17,20 @@ export class Observation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ default: false })
-  isDomestic: boolean;
+  @Column({ type: "text", nullable: true })
+  discovery: string;
 
   @Column({ default: false })
-  needToShare: boolean;
+  public: boolean;
 
   @Column({ default: false })
-  needIdentification: boolean;
+  identified: boolean;
 
   @Column()
   category: CategoryType;
 
-  @Column({ type: "date" })
-  dateOfObservation: Date;
+  @Column({ type: "date", nullable: true })
+  date: Date;
 
   @Column({ type: "text", nullable: true })
   description: string;

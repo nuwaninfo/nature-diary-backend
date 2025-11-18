@@ -9,6 +9,7 @@ const observationService = new ObservationService();
 export const createObservation = async (req: CustomRequest, res: Response) => {
   try {
     const userId = req.user?.id;
+    console.log("Authenticated user ID:", req.body);
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });

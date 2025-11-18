@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsOptional,
   Length,
+  isString,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { LocationDTO } from "../dto/locationDTO.js";
@@ -12,21 +13,21 @@ import { ImageDTO } from "../dto/imageDTO.js";
 export type CategoryType = "fauna" | "flora" | "funga";
 
 export class ObservationDTO {
-  @IsBoolean()
-  isDomestic!: boolean;
+  @IsString()
+  discovery!: string;
 
   @IsBoolean()
-  needToShare!: boolean;
+  public!: boolean;
 
   @IsBoolean()
-  needIdentification!: boolean;
+  identified!: boolean;
 
   @IsString()
   @Length(5, 500)
   description!: string;
 
   @IsDateString()
-  dateOfObservation!: string;
+  date!: string;
 
   @IsString()
   category!: CategoryType;

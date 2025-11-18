@@ -21,6 +21,7 @@ export class ObservationService {
   ): Promise<Observation> {
     const instance = plainToInstance(ObservationDTO, dto);
     const errors = await validate(instance);
+
     if (errors.length > 0) {
       throw new Error(`Validation failed: ${JSON.stringify(errors)}`);
     }
@@ -31,18 +32,18 @@ export class ObservationService {
     }
 
     const observation = new Observation();
-    observation.isDomestic = dto.isDomestic;
-    observation.needToShare = dto.needToShare;
-    observation.needIdentification = dto.needIdentification;
+    observation.discovery = dto.discovery;
+    observation.public = dto.public;
+    observation.identified = dto.identified;
     observation.description = dto.description;
-    observation.dateOfObservation = new Date(dto.dateOfObservation);
+    observation.date = new Date(dto.date);
     observation.category = dto.category;
     observation.user = user;
 
     if (dto.location) {
       const location = new Location();
-      location.latitude = dto.location.latitude;
-      location.longitude = dto.location.longitude;
+      location.lat = dto.location.lat;
+      location.lng = dto.location.lng;
       observation.location = location;
     }
 
@@ -70,8 +71,8 @@ export class ObservationService {
   // Retrieve all observations with optional filters and pagination
   async getAllObservations(filters?: {
     category?: CategoryType;
-    needIdentification?: boolean;
-    needToShare?: boolean;
+    identified?: boolean;
+    public?: boolean;
     userId?: number;
     page?: number;
     limit?: number;
@@ -97,18 +98,18 @@ export class ObservationService {
       });
     }
 
-    if (filters?.needIdentification !== undefined) {
+    if (filters?.identified !== undefined) {
       queryBuilder.andWhere(
         "observation.needIdentification = :needIdentification",
         {
-          needIdentification: filters.needIdentification,
+          needIdentification: filters.identified,
         }
       );
     }
 
-    if (filters?.needToShare !== undefined) {
-      queryBuilder.andWhere("observation.needToShare = :needToShare", {
-        needToShare: filters.needToShare,
+    if (filters?.public !== undefined) {
+      queryBuilder.andWhere("observation.public = :public", {
+        public: filters.public,
       });
     }
 
@@ -156,20 +157,20 @@ export class ObservationService {
       }
     }
 
-    if (updateData.isDomestic !== undefined) {
-      observation.isDomestic = updateData.isDomestic;
+    if (updateData.discovery !== undefined) {
+      observation.discovery = updateData.discovery;
     }
-    if (updateData.needToShare !== undefined) {
-      observation.needToShare = updateData.needToShare;
+    if (updateData.public !== undefined) {
+      observation.public = updateData.public;
     }
-    if (updateData.needIdentification !== undefined) {
-      observation.needIdentification = updateData.needIdentification;
+    if (updateData.identified !== undefined) {
+      observation.identified = updateData.identified;
     }
     if (updateData.description) {
       observation.description = updateData.description;
     }
-    if (updateData.dateOfObservation) {
-      observation.dateOfObservation = new Date(updateData.dateOfObservation);
+    if (updateData.date) {
+      observation.date = new Date(updateData.date);
     }
     if (updateData.category) {
       observation.category = updateData.category;
@@ -177,12 +178,12 @@ export class ObservationService {
 
     if (updateData.location) {
       if (observation.location) {
-        observation.location.latitude = updateData.location.latitude;
-        observation.location.longitude = updateData.location.longitude;
+        observation.location.lat = updateData.location.lat;
+        observation.location.lng = updateData.location.lng;
       } else {
         const newLocation = new Location();
-        newLocation.latitude = updateData.location.latitude;
-        newLocation.longitude = updateData.location.longitude;
+        newLocation.lat = updateData.location.lat;
+        newLocation.lng = updateData.location.lng;
         observation.location = newLocation;
       }
     }
