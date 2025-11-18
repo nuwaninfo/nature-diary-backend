@@ -16,6 +16,12 @@ export class ObservationDTO {
   @IsString()
   discovery!: string;
 
+  @IsString()
+  scientific_name!: string;
+
+  @IsString()
+  common_name!: string;
+
   @IsBoolean()
   public!: boolean;
 

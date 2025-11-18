@@ -18,6 +18,12 @@ export class Observation {
   id: number;
 
   @Column({ type: "text", nullable: true })
+  scientific_name: string;
+
+  @Column({ type: "text", nullable: true })
+  common_name: string;
+
+  @Column({ type: "text", nullable: true })
   discovery: string;
 
   @Column({ default: false })
