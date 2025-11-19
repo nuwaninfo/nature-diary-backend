@@ -7,6 +7,8 @@ import { ObservationDTO } from "../dto/observationDTO.js";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import type { CategoryType } from "../types/types.js";
+import fs from "fs";
+import path from "path";
 
 export class ObservationService {
   private observationRepository = AppDataSource.getRepository(Observation);
@@ -14,13 +16,50 @@ export class ObservationService {
   private locationRepository = AppDataSource.getRepository(Location);
   private userRepository = AppDataSource.getRepository(User);
 
+  // Utility: rename file and move to upload folder
+  private saveUploadedImages(
+    files: Express.Multer.File[],
+    userId: number
+  ): string[] {
+    if (!files || files.length === 0) return [];
+
+    return files.map((file) => {
+      const ext = path.extname(file.originalname);
+      const newName = `obs-${userId}-${Date.now()}-${Math.round(
+        Math.random() * 9999
+      )}${ext}`;
+
+      const uploadDir = path.join(process.cwd(), "images");
+
+      const destination = path.join(uploadDir, newName);
+
+      fs.renameSync(file.path, destination);
+
+      return newName;
+    });
+  }
+
+  private deleteImageFiles(images: Image[]) {
+    for (const img of images) {
+      const filePath = path.join("/images/", img.imageName);
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+  }
+
   // Create a new observation
   async createObservation(
     userId: number,
-    dto: ObservationDTO
+    dto: ObservationDTO,
+    files: Express.Multer.File[]
   ): Promise<Observation> {
     const instance = plainToInstance(ObservationDTO, dto);
     const errors = await validate(instance);
+
+    console.log("DTO received in service:", dto);
+
     if (errors.length > 0) {
       throw new Error(`Validation failed: ${JSON.stringify(errors)}`);
     }
@@ -31,30 +70,33 @@ export class ObservationService {
     }
 
     const observation = new Observation();
-    observation.isDomestic = dto.isDomestic;
-    observation.needToShare = dto.needToShare;
-    observation.needIdentification = dto.needIdentification;
+    observation.discovery = dto.discovery;
+    observation.scientific_name = dto.scientific_name;
+    observation.common_name = dto.common_name;
+    observation.public = dto.public;
+    observation.identified = dto.identified;
     observation.description = dto.description;
-    observation.dateOfObservation = new Date(dto.dateOfObservation);
+    observation.date = new Date(dto.date);
     observation.category = dto.category;
     observation.user = user;
 
+    console.log("dto.location:", dto.location);
+
     if (dto.location) {
       const location = new Location();
-      location.latitude = dto.location.latitude;
-      location.longitude = dto.location.longitude;
+      location.lat = dto.location.lat;
+      location.lng = dto.location.lng;
       observation.location = location;
     }
+    console.log("Saving observation location:", observation.location);
+    const savedNames = this.saveUploadedImages(files, userId);
 
-    if (dto.images && dto.images.length > 0) {
-      const images = dto.images.map((imgDTO) => {
-        const image = new Image();
-        image.imageName = imgDTO.imageName;
-        image.observation = observation;
-        return image;
-      });
-      observation.images = images;
-    }
+    observation.images = savedNames.map((name) => {
+      const img = new Image();
+      img.imageName = name;
+      img.observation = observation;
+      return img;
+    });
 
     return await this.observationRepository.save(observation);
   }
@@ -70,8 +112,8 @@ export class ObservationService {
   // Retrieve all observations with optional filters and pagination
   async getAllObservations(filters?: {
     category?: CategoryType;
-    needIdentification?: boolean;
-    needToShare?: boolean;
+    identified?: boolean;
+    public?: boolean;
     userId?: number;
     page?: number;
     limit?: number;
@@ -97,18 +139,18 @@ export class ObservationService {
       });
     }
 
-    if (filters?.needIdentification !== undefined) {
+    if (filters?.identified !== undefined) {
       queryBuilder.andWhere(
         "observation.needIdentification = :needIdentification",
         {
-          needIdentification: filters.needIdentification,
+          needIdentification: filters.identified,
         }
       );
     }
 
-    if (filters?.needToShare !== undefined) {
-      queryBuilder.andWhere("observation.needToShare = :needToShare", {
-        needToShare: filters.needToShare,
+    if (filters?.public !== undefined) {
+      queryBuilder.andWhere("observation.public = :public", {
+        public: filters.public,
       });
     }
 
@@ -136,7 +178,8 @@ export class ObservationService {
   async updateObservation(
     id: number,
     userId: number,
-    updateData: Partial<ObservationDTO>
+    updateData: Partial<ObservationDTO>,
+    files: Express.Multer.File[]
   ): Promise<Observation> {
     const observation = await this.observationRepository.findOne({
       where: { id, user: { id: userId } },
@@ -156,20 +199,26 @@ export class ObservationService {
       }
     }
 
-    if (updateData.isDomestic !== undefined) {
-      observation.isDomestic = updateData.isDomestic;
+    if (updateData.discovery !== undefined) {
+      observation.discovery = updateData.discovery;
     }
-    if (updateData.needToShare !== undefined) {
-      observation.needToShare = updateData.needToShare;
+    if (updateData.scientific_name !== undefined) {
+      observation.scientific_name = updateData.scientific_name;
     }
-    if (updateData.needIdentification !== undefined) {
-      observation.needIdentification = updateData.needIdentification;
+    if (updateData.common_name !== undefined) {
+      observation.common_name = updateData.common_name;
+    }
+    if (updateData.public !== undefined) {
+      observation.public = updateData.public;
+    }
+    if (updateData.identified !== undefined) {
+      observation.identified = updateData.identified;
     }
     if (updateData.description) {
       observation.description = updateData.description;
     }
-    if (updateData.dateOfObservation) {
-      observation.dateOfObservation = new Date(updateData.dateOfObservation);
+    if (updateData.date) {
+      observation.date = new Date(updateData.date);
     }
     if (updateData.category) {
       observation.category = updateData.category;
@@ -177,32 +226,30 @@ export class ObservationService {
 
     if (updateData.location) {
       if (observation.location) {
-        observation.location.latitude = updateData.location.latitude;
-        observation.location.longitude = updateData.location.longitude;
+        observation.location.lat = updateData.location.lat;
+        observation.location.lng = updateData.location.lng;
       } else {
         const newLocation = new Location();
-        newLocation.latitude = updateData.location.latitude;
-        newLocation.longitude = updateData.location.longitude;
+        newLocation.lat = updateData.location.lat;
+        newLocation.lng = updateData.location.lng;
         observation.location = newLocation;
       }
     }
 
-    if (updateData.images !== undefined) {
-      if (observation.images && observation.images.length > 0) {
+    if (files && files.length > 0) {
+      if (observation.images.length > 0) {
+        this.deleteImageFiles(observation.images);
         await this.imageRepository.remove(observation.images);
       }
 
-      if (updateData.images.length > 0) {
-        const newImages = updateData.images.map((imgDTO) => {
-          const image = new Image();
-          image.imageName = imgDTO.imageName;
-          image.observation = observation;
-          return image;
-        });
-        observation.images = newImages;
-      } else {
-        observation.images = [];
-      }
+      const savedNames = this.saveUploadedImages(files, userId);
+
+      observation.images = savedNames.map((name) => {
+        const img = new Image();
+        img.imageName = name;
+        img.observation = observation;
+        return img;
+      });
     }
 
     return await this.observationRepository.save(observation);
@@ -217,6 +264,8 @@ export class ObservationService {
     if (!observation) {
       throw new Error(`Observation with id ${id} not found or access denied`);
     }
+
+    this.deleteImageFiles(observation.images);
 
     await this.observationRepository.remove(observation);
 

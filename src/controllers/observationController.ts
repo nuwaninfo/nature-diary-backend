@@ -1,7 +1,9 @@
 import type { Request, Response } from "express";
 import { ObservationService } from "../services/observationService.js";
-import type { ObservationDTO } from "../dto/observationDTO.js";
+
 import type { CustomRequest } from "../types/types.js";
+import { plainToInstance } from "class-transformer";
+import { ObservationDTO } from "../dto/observationDTO.js";
 
 const observationService = new ObservationService();
 
@@ -9,11 +11,26 @@ const observationService = new ObservationService();
 export const createObservation = async (req: CustomRequest, res: Response) => {
   try {
     const userId = req.user?.id;
+    const files = req.files as Express.Multer.File[];
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
-    const observationDto: ObservationDTO = req.body;
+    //const observationDto: ObservationDTO = JSON.parse(req.body.data);
+    const bodyData = JSON.parse(req.body.data);
+
+    // Move lat/lng into location object if they exist
+    if (bodyData.lat !== undefined && bodyData.lng !== undefined) {
+      bodyData.location = {
+        lat: bodyData.lat,
+        lng: bodyData.lng,
+      };
+    }
+
+    const observationDto: ObservationDTO = plainToInstance(
+      ObservationDTO,
+      bodyData
+    );
 
     if (isNaN(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
@@ -21,7 +38,8 @@ export const createObservation = async (req: CustomRequest, res: Response) => {
 
     const observation = await observationService.createObservation(
       userId,
-      observationDto
+      observationDto,
+      files
     );
     res.status(201).json({
       success: true,
@@ -173,6 +191,8 @@ export const getUserObservations = async (
 export const updateObservation = async (req: CustomRequest, res: Response) => {
   try {
     const userId = req.user?.id;
+    const files = req.files as Express.Multer.File[];
+
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -200,7 +220,8 @@ export const updateObservation = async (req: CustomRequest, res: Response) => {
     const updatedObservation = await observationService.updateObservation(
       id,
       userId,
-      updateData
+      updateData,
+      files
     );
 
     res.status(200).json({

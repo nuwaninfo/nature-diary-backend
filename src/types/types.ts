@@ -3,11 +3,11 @@ import type { JwtPayload } from "jsonwebtoken";
 
 export interface IObservation {
   id: number;
-  isDomestic: boolean;
-  needToShare: boolean;
-  needIdentification: boolean;
+  discovery: string;
+  public: boolean;
+  identified: boolean;
   category: string;
-  dateOfObservation: Date;
+  date: Date;
   description: string;
   addedDate: Date;
   updatedDate: Date;
@@ -25,8 +25,8 @@ export interface IImage {
 
 export interface ILocation {
   id: number;
-  latitude: number;
-  longitude: number;
+  lat: number | null;
+  lng: number | null;
   addedDate: Date;
   updatedDate: Date;
   observation: IObservation;

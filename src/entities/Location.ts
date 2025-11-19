@@ -14,11 +14,11 @@ export class Location {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column("float")
-  latitude: number;
+  @Column("float", { nullable: true })
+  lat: number | null;
 
-  @Column("float")
-  longitude: number;
+  @Column("float", { nullable: true })
+  lng: number | null;
 
   @CreateDateColumn()
   addedDate: Date;

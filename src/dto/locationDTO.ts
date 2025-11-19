@@ -2,8 +2,8 @@ import { IsNumber } from "class-validator";
 
 export class LocationDTO {
   @IsNumber()
-  latitude!: number;
+  lat!: number;
 
   @IsNumber()
-  longitude!: number;
+  lng!: number;
 }
