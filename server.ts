@@ -26,6 +26,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan("dev"));
 app.use("/api/v1", rootRouter);
+app.use("/images", express.static("images"));
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

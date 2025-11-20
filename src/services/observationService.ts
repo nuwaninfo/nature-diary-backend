@@ -123,6 +123,7 @@ export class ObservationService {
     page: number;
     totalPages: number;
   }> {
+    console.log("Filters received in service:", filters);
     const page = filters?.page || 1;
     const limit = filters?.limit || 10;
     const skip = (page - 1) * limit;
@@ -140,12 +141,9 @@ export class ObservationService {
     }
 
     if (filters?.identified !== undefined) {
-      queryBuilder.andWhere(
-        "observation.needIdentification = :needIdentification",
-        {
-          needIdentification: filters.identified,
-        }
-      );
+      queryBuilder.andWhere("observation.identified  = :identified", {
+        identified: filters.identified,
+      });
     }
 
     if (filters?.public !== undefined) {
@@ -160,18 +158,28 @@ export class ObservationService {
       });
     }
 
-    const [observations, total] = await queryBuilder
-      .orderBy("observation.dateOfObservation", "DESC")
-      .skip(skip)
-      .take(limit)
-      .getManyAndCount();
+    try {
+      const [observations, total] = await queryBuilder
+        .orderBy("observation.date", "DESC")
+        .skip(skip)
+        .take(limit)
+        .getManyAndCount();
 
-    return {
-      observations,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-    };
+      console.log(observations);
+      console.log(
+        `Fetched ${observations.length} observations out of ${total} total`
+      );
+
+      return {
+        observations,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (err) {
+      console.error("ERROR in getAllObservations:", err);
+      throw err;
+    }
   }
 
   // Update an existing observation
