@@ -58,8 +58,6 @@ export class ObservationService {
     const instance = plainToInstance(ObservationDTO, dto);
     const errors = await validate(instance);
 
-    console.log("DTO received in service:", dto);
-
     if (errors.length > 0) {
       throw new Error(`Validation failed: ${JSON.stringify(errors)}`);
     }
@@ -80,15 +78,13 @@ export class ObservationService {
     observation.category = dto.category;
     observation.user = user;
 
-    console.log("dto.location:", dto.location);
-
     if (dto.location) {
       const location = new Location();
       location.lat = dto.location.lat;
       location.lng = dto.location.lng;
       observation.location = location;
     }
-    console.log("Saving observation location:", observation.location);
+
     const savedNames = this.saveUploadedImages(files, userId);
 
     observation.images = savedNames.map((name) => {
@@ -123,7 +119,7 @@ export class ObservationService {
     page: number;
     totalPages: number;
   }> {
-    console.log("Filters received in service:", filters);
+    console.log("Filters received in getAllObservations:", filters);
     const page = filters?.page || 1;
     const limit = filters?.limit || 10;
     const skip = (page - 1) * limit;
@@ -165,10 +161,7 @@ export class ObservationService {
         .take(limit)
         .getManyAndCount();
 
-      console.log(observations);
-      console.log(
-        `Fetched ${observations.length} observations out of ${total} total`
-      );
+      console.log(">>>>>>>&&&&", observations);
 
       return {
         observations,

@@ -85,15 +85,18 @@ export const getObservation = async (req: Request, res: Response) => {
 // Get all observations with optional filters and pagination for public access
 export const getAllObservations = async (req: Request, res: Response) => {
   try {
-    const { category, needIdentification, needToShare, userId, page, limit } =
+    console.log("Query parameters received:", req.query);
+    const { category, identified, needToShare, userId, page, limit } =
       req.query;
+
+    console.log("######", identified);
 
     const filters = {
       ...(category && {
         category: category as "fauna" | "flora" | "funga",
       }),
-      ...(needIdentification !== undefined && {
-        needIdentification: needIdentification === "true",
+      ...(identified !== undefined && {
+        identified: identified === "true",
       }),
       ...(needToShare !== undefined && {
         needToShare: needToShare === "true",
