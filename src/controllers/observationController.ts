@@ -59,10 +59,13 @@ export const createObservation = async (req: CustomRequest, res: Response) => {
 export const getObservation = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
+
     if (isNaN(id))
       return res.status(400).json({ message: "Invalid observation ID" });
 
     const observation = await observationService.getObservationById(id);
+    //console.log("Retrieved observation:", observation);
+
     if (!observation)
       return res.status(404).json({ message: "Observation not found" });
 

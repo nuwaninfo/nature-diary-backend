@@ -105,7 +105,7 @@ export class ObservationService {
   async getObservationById(id: number): Promise<Observation | null> {
     return await this.observationRepository.findOne({
       where: { id },
-      relations: ["user", "images", "location"],
+      relations: ["images", "location"],
     });
   }
 
