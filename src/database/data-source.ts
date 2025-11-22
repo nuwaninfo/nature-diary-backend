@@ -4,6 +4,7 @@ import { User } from "../entities/User.js";
 import { Observation } from "../entities/Observation.js";
 import { Image } from "../entities/Image.js";
 import { Location } from "../entities/Location.js";
+import { Suggestion } from "../entities/Suggestion.js";
 
 import dotenv from "dotenv";
 
@@ -18,6 +19,6 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || "nature-diary",
   synchronize: false,
   logging: true,
-  entities: [User, Observation, Image, Location],
+  entities: [User, Observation, Image, Location, Suggestion],
   migrations: ["src/migrations/*.ts"],
 });

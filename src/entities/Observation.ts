@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import type { IObservation, IUser, IImage, ILocation } from "../types/types.js";
+import { Suggestion } from "./Suggestion.js";
 
 export type CategoryType = "fauna" | "flora" | "funga";
 
@@ -60,4 +61,6 @@ export class Observation {
     nullable: true,
   })
   location?: ILocation;
+
+  @OneToMany(() => Suggestion, (suggestion) => suggestion.observation) suggestions: Suggestion[];
 }

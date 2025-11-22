@@ -8,6 +8,7 @@ import {
 } from "typeorm";
 
 import type { IUser, IObservation } from "../types/types.js";
+import { Suggestion } from "./Suggestion.js";
 
 @Entity()
 export class User {
@@ -37,4 +38,6 @@ export class User {
 
   @OneToMany("Observation", (observation: IObservation) => observation.user)
   observations: IObservation[];
+
+  @OneToMany(() => Suggestion, (suggestion) => suggestion.user) suggestions: Suggestion[];
 }
