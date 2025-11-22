@@ -47,9 +47,11 @@ export class AuthService {
   async logIn(loginDto: LoginDTO): Promise<ILoginReturn> {
     const { email, password } = loginDto;
 
-    const user: User | null = await this.userRepository.findOne({
-      where: { email },
-    });
+    const user = await this.userRepository
+      .createQueryBuilder("user")
+      .addSelect("user.password")
+      .where("user.email = :email", { email })
+      .getOne();
     if (!user) {
       return {
         accessToken: "",

@@ -101,7 +101,7 @@ export class ObservationService {
   async getObservationById(id: number): Promise<Observation | null> {
     return await this.observationRepository.findOne({
       where: { id },
-      relations: ["images", "location"],
+      relations: ["images", "user", "location"],
     });
   }
 
@@ -161,8 +161,6 @@ export class ObservationService {
         .take(limit)
         .getManyAndCount();
 
-      console.log(">>>>>>>&&&&", observations);
-
       return {
         observations,
         total,
@@ -184,7 +182,7 @@ export class ObservationService {
   ): Promise<Observation> {
     const observation = await this.observationRepository.findOne({
       where: { id, user: { id: userId } },
-      relations: ["images", "location"],
+      relations: ["images", "user", "location"],
     });
 
     if (!observation) {
