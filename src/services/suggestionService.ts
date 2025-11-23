@@ -51,7 +51,7 @@ export class SuggestionService {
   }
 
   observation.common_name = suggestion.suggested_name;
-  observation.identified = true;
+  observation.identified = false; //Reverse logic because if identified=true then the observation is unidentified
 
   return await this.observationRepository.save(observation);
 }
@@ -60,6 +60,9 @@ export class SuggestionService {
     where: { observation: { id: observationId } },
     relations: ["user"], 
     select: {
+      id: true,              
+      suggested_name: true,  
+      date: true,
       user: {
         id: true,
         firstName: true, 
