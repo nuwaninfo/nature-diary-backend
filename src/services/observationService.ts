@@ -41,7 +41,7 @@ export class ObservationService {
 
   private deleteImageFiles(images: Image[]) {
     for (const img of images) {
-      const filePath = path.join("/images/", img.imageName);
+      const filePath = path.join(process.cwd(), "images", img.imageName);
 
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -258,6 +258,7 @@ export class ObservationService {
   async deleteObservation(id: number, userId: number): Promise<boolean> {
     const observation = await this.observationRepository.findOne({
       where: { id, user: { id: userId } },
+      relations: ["images"],
     });
 
     if (!observation) {
