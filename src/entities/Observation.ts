@@ -8,8 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
-import type { IObservation, IUser, IImage, ILocation } from "../types/types.js";
-import { Suggestion } from "./Suggestion.js";
+import type { IObservation, IUser, IImage, ILocation, ISuggestion } from "../types/types.js";
 
 export type CategoryType = "fauna" | "flora" | "funga";
 
@@ -62,5 +61,5 @@ export class Observation {
   })
   location?: ILocation;
 
-  @OneToMany(() => Suggestion, (suggestion) => suggestion.observation) suggestions: Suggestion[];
+  @OneToMany("Suggestion", (suggestion: ISuggestion) => suggestion.observation) suggestions: ISuggestion[];
 }

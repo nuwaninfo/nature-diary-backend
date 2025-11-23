@@ -44,7 +44,8 @@ export class SuggestionService {
     throw new Error("Suggestion not found");
   }
 
-  const observation = suggestion.observation;
+  //const observation = suggestion.observation;
+  const observation = suggestion.observation as unknown as Observation; // Band-aid
 
   if (observation.user.id !== userId) {
     throw new Error("Unauthorized: Only the observation owner can accept suggestions");

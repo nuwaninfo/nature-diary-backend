@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from "typeorm";
-import type { User } from "./User.js";
-import { Observation } from "./Observation.js";
+import type { ISuggestion, IUser, IObservation } from "../types/types.js";
 
 @Entity()
 export class Suggestion {
@@ -13,9 +12,9 @@ export class Suggestion {
     @CreateDateColumn()
     date: Date;
 
-    @ManyToOne("User", (user: User) => user.suggestions, {onDelete: "CASCADE"})
-    user: User;
+    @ManyToOne("User", (user: IUser) => user.suggestions, {onDelete: "CASCADE"})
+    user: IUser;
 
-    @ManyToOne(() => Observation, (observation) => observation.suggestions, {onDelete: "CASCADE"})
-    observation: Observation;
+    @ManyToOne("Observation", (observation: IObservation) => observation.suggestions, {onDelete: "CASCADE"})
+    observation: IObservation;
 }

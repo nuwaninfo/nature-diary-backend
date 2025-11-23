@@ -3,6 +3,8 @@ import type { JwtPayload } from "jsonwebtoken";
 
 export interface IObservation {
   id: number;
+  scientific_name: string;
+  common_name: string;
   discovery: string;
   public: boolean;
   identified: boolean;
@@ -14,6 +16,7 @@ export interface IObservation {
   user: any;
   images: any[];
   location?: any;
+  suggestions: ISuggestion[];
 }
 
 export interface IImage {
@@ -46,6 +49,15 @@ export interface IUser {
   addedDate: Date;
   updatedDate: Date;
   observations: IObservation[];
+  suggestions: ISuggestion[];
 }
 
 export type CategoryType = "fauna" | "flora" | "funga";
+
+export interface ISuggestion {
+  id: number;
+  suggested_name: string;
+  date: Date;
+  user: IUser;
+  observation: IObservation;
+}
