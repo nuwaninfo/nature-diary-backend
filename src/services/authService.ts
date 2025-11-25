@@ -7,14 +7,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../entities/User.js";
 import { UserService } from "./userService.js";
 import bcrypt from "bcrypt";
-
-interface ILoginReturn {
-  accessToken: string;
-  email: string;
-  firstName: string;
-  status: number;
-  msg: string;
-}
+import type { ILoginReturn } from "../types/types.js";
 
 export class AuthService {
   private userRepository = AppDataSource.getRepository(User);
@@ -84,16 +77,52 @@ export class AuthService {
       throw new Error("JWT SECRET is not defined in environment variables");
     }
 
-    const expiresIn = "20m";
+    const accessToken = jwt.sign(JwtPayload, process.env.SECRET!, {
+      expiresIn: "5m",
+    });
 
-    const token: string = jwt.sign(JwtPayload, secret, { expiresIn });
+    const refreshToken = jwt.sign(
+      { id: user.id },
+      process.env.REFRESH_SECRET!,
+      { expiresIn: "10m" } // 7d
+    );
+
+    user.refreshToken = refreshToken;
+    await this.userRepository.save(user);
 
     return {
-      accessToken: token,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
       email: user.email,
       firstName: user.firstName,
       status: 200,
       msg: "Login success",
     };
+  }
+
+  async verifyRefreshToken(token: string) {
+    try {
+      const decoded = jwt.verify(token, process.env.REFRESH_SECRET!) as any;
+
+      // Fetch user from DB
+      const user = await this.userRepository.findOne({
+        where: { id: decoded.id },
+      });
+
+      if (!user || user.refreshToken !== token) {
+        throw new Error("Invalid refresh token");
+      }
+
+      // Generate new access token
+      const newAccessToken = jwt.sign(
+        { id: user.id, role: user.role },
+        process.env.SECRET!,
+        { expiresIn: "5m" }
+      );
+
+      return { newAccessToken, user };
+    } catch (err) {
+      throw new Error("Invalid or expired refresh token");
+    }
   }
 }

@@ -38,6 +38,14 @@ export interface ILocation {
 export interface CustomRequest extends Request {
   user?: JwtPayload;
 }
+export interface ILoginReturn {
+  accessToken: string;
+  refreshToken?: string;
+  email: string;
+  firstName: string;
+  status: number;
+  msg: string;
+}
 
 export interface IUser {
   id: number;
