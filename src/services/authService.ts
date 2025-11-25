@@ -78,13 +78,13 @@ export class AuthService {
     }
 
     const accessToken = jwt.sign(JwtPayload, process.env.SECRET!, {
-      expiresIn: "5m",
+      expiresIn: "2m",
     });
 
     const refreshToken = jwt.sign(
       { id: user.id },
       process.env.REFRESH_SECRET!,
-      { expiresIn: "7d" }
+      { expiresIn: "5m" } // 7d
     );
 
     user.refreshToken = refreshToken;
