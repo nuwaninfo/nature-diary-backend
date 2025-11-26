@@ -54,7 +54,11 @@ export class SuggestionService {
   observation.common_name = suggestion.suggested_name;
   observation.identified = false; //Reverse logic because if identified=true then the observation is unidentified
 
-  return await this.observationRepository.save(observation);
+  await this.observationRepository.save(observation);
+  return await this.observationRepository.findOne({
+    where: {id: observation.id},
+    relations: ["images", "user", "location"]
+  })
 }
  async getSuggestionsByObservation(observationId: number) {
   return await this.suggestionRepository.find({
