@@ -28,8 +28,9 @@ export class ObservationDTO {
   @IsBoolean()
   identified!: boolean;
 
+  @IsOptional()
   @IsString()
-  @Length(5, 500)
+  @Length(0, 500)
   description!: string;
 
   @IsDateString()

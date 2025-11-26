@@ -9,11 +9,15 @@ import {
 } from "../controllers/observationController.js";
 import { validateToken } from "../middleware/validateToken.js";
 import upload from "../middleware/upload.js";
-import { createSuggestion, acceptSuggestion, getSuggestions } from '../controllers/suggestionController.js';
+import {
+  createSuggestion,
+  acceptSuggestion,
+  getSuggestions,
+} from "../controllers/suggestionController.js";
 
 const router = express.Router();
 
-// Protected routes
+//***** Protected routes *****//
 // create observation
 router.post(
   "/observations",
@@ -28,15 +32,18 @@ router.put("/observations/:id", validateToken, updateObservation);
 // delete observation
 router.delete("/observations/:id", validateToken, deleteObservation);
 
-// Public routes
+//******* Public routes *******//
 router.get("/public/observations/:id", getObservation);
 router.get("/public/observations", getAllObservations);
-
 
 // add suggestion
 router.post("/observations/:id/suggestions", validateToken, createSuggestion);
 // accept suggestion
-router.put("/suggestions/:suggestionId/accept", validateToken, acceptSuggestion);
+router.put(
+  "/suggestions/:suggestionId/accept",
+  validateToken,
+  acceptSuggestion
+);
 //get suggestions
 router.get("/observations/:id/suggestions", getSuggestions);
 
