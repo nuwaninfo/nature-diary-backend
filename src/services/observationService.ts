@@ -109,7 +109,7 @@ export class ObservationService {
   async getAllObservations(filters?: {
     category?: CategoryType;
     identified?: boolean;
-    public?: boolean;
+    publicOrPrivate?: boolean;
     userId?: number;
     page?: number;
     limit?: number;
@@ -142,9 +142,9 @@ export class ObservationService {
       });
     }
 
-    if (filters?.public !== undefined) {
+    if (filters?.publicOrPrivate !== undefined) {
       queryBuilder.andWhere("observation.public = :public", {
-        public: filters.public,
+        public: filters.publicOrPrivate,
       });
     }
 

@@ -86,7 +86,7 @@ export const getObservation = async (req: Request, res: Response) => {
 export const getAllObservations = async (req: Request, res: Response) => {
   try {
     console.log("Query parameters received:", req.query);
-    const { category, identified, needToShare, userId, page, limit } =
+    const { category, identified, publicOrPrivate, userId, page, limit } =
       req.query;
 
     const filters = {
@@ -96,8 +96,8 @@ export const getAllObservations = async (req: Request, res: Response) => {
       ...(identified !== undefined && {
         identified: identified === "true",
       }),
-      ...(needToShare !== undefined && {
-        needToShare: needToShare === "true",
+      ...(publicOrPrivate !== undefined && {
+        publicOrPrivate: publicOrPrivate === "true",
       }),
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 10,
