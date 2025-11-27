@@ -13,7 +13,7 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const productionConfig = {
   type: "postgres",
-  synchronize: false,
+  synchronize: true,
   logging: false,
   entities: ["dist/src/entities/*.js"],
   migrations: ["dist/src/migrations/*.js"],
