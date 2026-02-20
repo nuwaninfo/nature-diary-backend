@@ -5,8 +5,6 @@ _A digital space to record, explore, and share wildlife and nature observations.
 Nature Diary is a web application that allows users to document domestic or wildlife observations — including **fauna, flora, and fungi** — in a personal digital diary that can also be shared with others.  
 It’s designed for nature lovers, hobbyists, researchers, and anyone who enjoys exploring the living world around them.
 
-> “Nature diary is a web application that allows users to record domestic or wildlife observations including fauna, flora, and fungi, into a digital diary that can be shared with others.”
-
 ---
 
 ## ✨ Features
