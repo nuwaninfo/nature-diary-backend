@@ -71,6 +71,8 @@ The backend follows **clean code architecture**, ensuring maintainability, scala
 
 ## 🖼️ Screenshots
 
-### Home Page ![Home Page](https://github.com/nuwaninfo/nature-diary-backend/blob/master/home_page.png)
+### Home Page
+![Home Page](https://github.com/nuwaninfo/nature-diary-backend/blob/master/home_page.png)
 
-### Observation Form ![Observation Form](https://github.com/nuwaninfo/nature-diary-backend/blob/master/add_screen.png)
+### Observation Form
+![Observation Form](https://github.com/nuwaninfo/nature-diary-backend/blob/master/add_screen.png)
