@@ -36,8 +36,8 @@ export const AppDataSource = new DataSource(
         password: process.env.DB_PASS || "abc123",
         database: process.env.DB_NAME || "nature-diary",
         synchronize: true,
-        logging: true,
+        logging: false,
         entities: [User, Observation, Image, Location, Suggestion],
         migrations: ["src/migrations/*.ts"],
-      }
+      },
 );

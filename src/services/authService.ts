@@ -45,6 +45,7 @@ export class AuthService {
       .addSelect("user.password")
       .where("user.email = :email", { email })
       .getOne();
+
     if (!user) {
       return {
         accessToken: "",
@@ -84,7 +85,7 @@ export class AuthService {
     const refreshToken = jwt.sign(
       { id: user.id },
       process.env.REFRESH_SECRET!,
-      { expiresIn: "7d" } // 7d
+      { expiresIn: "7d" }, // 7d
     );
 
     user.refreshToken = refreshToken;
@@ -117,7 +118,7 @@ export class AuthService {
       const newAccessToken = jwt.sign(
         { id: user.id, role: user.role },
         process.env.SECRET!,
-        { expiresIn: "5m" }
+        { expiresIn: "5m" },
       );
 
       return { newAccessToken, user };
