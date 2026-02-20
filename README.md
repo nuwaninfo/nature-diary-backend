@@ -73,17 +73,6 @@ The backend follows **clean code architecture**, ensuring maintainability, scala
 
 ## 🖼️ Screenshots
 
-## 🚀 Getting Started
+### Home Page ![Home Page](https://github.com/nuwaninfo/nature-diary-backend.git/home_page.png)
 
-### Prerequisites
-
-- Node.js 22+
-- PostgreSQL 17+
-- npm or yarn
-
-### Installation
-
-```bash
-git clone https://github.com/yourusername/nature-diary.git
-cd nature-diary
-```
+### Observation Form ![Observation Form](https://github.com/nuwaninfo/nature-diary-backend.git/add_screen.png)
